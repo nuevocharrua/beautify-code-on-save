@@ -1,6 +1,7 @@
 # Beautify Code on Save
+>A Godot 4 plugin that automatically formats and lints your GDScript files when saving.
+<img width="220" alt="Format on Save logo" src="./icon.png" />
 
-A Godot 4 plugin that automatically formats and lints your GDScript files when saving.
 
 ## Features
 
