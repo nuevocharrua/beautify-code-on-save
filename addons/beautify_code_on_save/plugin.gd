@@ -53,7 +53,7 @@ func _setup_plugin_settings(settings: EditorSettings) -> void:
 	# Configure settings metadata
 	(
 		settings
-		.add_property_info(
+		. add_property_info(
 			{
 				"name": GDFORMAT_PATH_SETTING,
 				"type": TYPE_STRING,
@@ -64,7 +64,7 @@ func _setup_plugin_settings(settings: EditorSettings) -> void:
 	)
 	(
 		settings
-		.add_property_info(
+		. add_property_info(
 			{
 				"name": GDLINT_PATH_SETTING,
 				"type": TYPE_STRING,
@@ -85,9 +85,7 @@ func _detect_default_path(command: String) -> String:
 
 	# Common paths as fallback
 	var common_paths = [
-		"/usr/local/bin/" + command,
-		"/usr/bin/" + command,
-		OS.get_environment("HOME") + "/.local/bin/" + command
+		"/usr/local/bin/" + command, "/usr/bin/" + command, OS.get_environment("HOME") + "/.local/bin/" + command
 	]
 
 	for path in common_paths:
@@ -109,9 +107,7 @@ func _on_resource_saved(script: Resource) -> void:
 	if current_script != script:
 		return
 
-	var text_edit = (
-		get_editor_interface().get_script_editor().get_current_editor().get_base_editor()
-	)
+	var text_edit = get_editor_interface().get_script_editor().get_current_editor().get_base_editor()
 	var file_path = ProjectSettings.globalize_path(script.resource_path)
 
 	# Get paths from settings
@@ -133,7 +129,7 @@ func _on_resource_saved(script: Resource) -> void:
 			print("✓ GDFormat: Successfully formatted")
 		else:
 			push_error("❌ GDFormat Error: " + str(gdformat_output))
-			return # If formatting fails, don't continue with linting
+			return  # If formatting fails, don't continue with linting
 
 	# Then run gdlint on the formatted code
 	if not gdlint_path or not FileAccess.file_exists(gdlint_path):
@@ -171,6 +167,7 @@ func _reload_script(text_edit: TextEdit, source_code: String) -> void:
 func _show_lint_errors(output: String, path: String) -> void:
 	print("\n⚠ GDLint found the following issues:")
 	print("File: %s" % _get_res_path(path))
+	push_error("❌ GDFormat Error: Please see output with more information.")
 	var lines = output.split("\n")
 	var error_count := 0
 
@@ -186,8 +183,10 @@ func _show_lint_errors(output: String, path: String) -> void:
 			var error_msg = error_parts[1]
 
 			print("%d) Line %s: %s" % [error_count, line_number, error_msg])
+			push_error("%d) Line %s: %s" % [error_count, line_number, error_msg])
 
 	print("\nTotal: %d issues found" % error_count)
+	push_error("\nTotal: %d issues found" % error_count)
 
 
 func _get_res_path(absolute_path: String) -> String:
