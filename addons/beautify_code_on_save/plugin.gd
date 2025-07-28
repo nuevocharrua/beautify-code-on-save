@@ -115,6 +115,10 @@ func _on_resource_saved(script: Resource) -> void:
 	var gdformat_path = settings.get_setting(GDFORMAT_PATH_SETTING)
 	var gdlint_path = settings.get_setting(GDLINT_PATH_SETTING)
 
+	# Add date time
+	var date_time = Time.get_datetime_string_from_system()
+	print("\n%s" % date_time)
+
 	# First run gdformat
 	if not gdformat_path or not FileAccess.file_exists(gdformat_path):
 		push_warning("❌ GDFormat not found. Please configure the path in Editor Settings.")
@@ -126,7 +130,7 @@ func _on_resource_saved(script: Resource) -> void:
 			await get_tree().process_frame
 			var formatted_source = FileAccess.get_file_as_string(script.resource_path)
 			_reload_script(text_edit, formatted_source)
-			print("✓ GDFormat: Successfully formatted")
+			print("✓ GDFormat: Successfully formatted: '%s'" % script.resource_path)
 		else:
 			push_error("❌ GDFormat Error: " + str(gdformat_output))
 			return  # If formatting fails, don't continue with linting
@@ -141,7 +145,7 @@ func _on_resource_saved(script: Resource) -> void:
 		if gdlint_exit_code != SUCCESS:
 			_show_lint_errors(gdlint_output[0], file_path)
 		else:
-			print("✓ GDLint: No issues found")
+			print("✓ GDLint  : Successfully linted   : '%s'" % script.resource_path)
 
 
 func _reload_script(text_edit: TextEdit, source_code: String) -> void:
@@ -155,6 +159,7 @@ func _reload_script(text_edit: TextEdit, source_code: String) -> void:
 	text_edit.text = source_code
 
 	# Restore cursor and scroll position
+
 	text_edit.set_caret_column(column)
 	text_edit.set_caret_line(row)
 	text_edit.scroll_horizontal = scroll_position_h
@@ -167,7 +172,7 @@ func _reload_script(text_edit: TextEdit, source_code: String) -> void:
 func _show_lint_errors(output: String, path: String) -> void:
 	print("\n⚠ GDLint found the following issues:")
 	print("File: %s" % _get_res_path(path))
-	push_error("❌ GDFormat Error: Please see output with more information.")
+	push_error("❌ GDLint Error: Please see output with more information.")
 	var lines = output.split("\n")
 	var error_count := 0
 
