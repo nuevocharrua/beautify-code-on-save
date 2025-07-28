@@ -53,7 +53,7 @@ func _setup_plugin_settings(settings: EditorSettings) -> void:
 	# Configure settings metadata
 	(
 		settings
-		.add_property_info(
+		. add_property_info(
 			{
 				"name": GDFORMAT_PATH_SETTING,
 				"type": TYPE_STRING,
@@ -64,7 +64,7 @@ func _setup_plugin_settings(settings: EditorSettings) -> void:
 	)
 	(
 		settings
-		.add_property_info(
+		. add_property_info(
 			{
 				"name": GDLINT_PATH_SETTING,
 				"type": TYPE_STRING,
@@ -85,9 +85,7 @@ func _detect_default_path(command: String) -> String:
 
 	# Common paths as fallback
 	var common_paths = [
-		"/usr/local/bin/" + command,
-		"/usr/bin/" + command,
-		OS.get_environment("HOME") + "/.local/bin/" + command
+		"/usr/local/bin/" + command, "/usr/bin/" + command, OS.get_environment("HOME") + "/.local/bin/" + command
 	]
 
 	for path in common_paths:
@@ -109,15 +107,17 @@ func _on_resource_saved(script: Resource) -> void:
 	if current_script != script:
 		return
 
-	var text_edit = (
-		get_editor_interface().get_script_editor().get_current_editor().get_base_editor()
-	)
+	var text_edit = get_editor_interface().get_script_editor().get_current_editor().get_base_editor()
 	var file_path = ProjectSettings.globalize_path(script.resource_path)
 
 	# Get paths from settings
 	var settings = get_editor_interface().get_editor_settings()
 	var gdformat_path = settings.get_setting(GDFORMAT_PATH_SETTING)
 	var gdlint_path = settings.get_setting(GDLINT_PATH_SETTING)
+
+	# Add date time
+	var date_time = Time.get_datetime_string_from_system()
+	print("\n%s" % date_time)
 
 	# First run gdformat
 	if not gdformat_path or not FileAccess.file_exists(gdformat_path):
@@ -130,10 +130,10 @@ func _on_resource_saved(script: Resource) -> void:
 			await get_tree().process_frame
 			var formatted_source = FileAccess.get_file_as_string(script.resource_path)
 			_reload_script(text_edit, formatted_source)
-			print("✓ GDFormat: Successfully formatted")
+			print("✓ GDFormat: Successfully formatted: '%s'" % script.resource_path)
 		else:
 			push_error("❌ GDFormat Error: " + str(gdformat_output))
-			return # If formatting fails, don't continue with linting
+			return  # If formatting fails, don't continue with linting
 
 	# Then run gdlint on the formatted code
 	if not gdlint_path or not FileAccess.file_exists(gdlint_path):
@@ -145,7 +145,7 @@ func _on_resource_saved(script: Resource) -> void:
 		if gdlint_exit_code != SUCCESS:
 			_show_lint_errors(gdlint_output[0], file_path)
 		else:
-			print("✓ GDLint: No issues found")
+			print("✓ GDLint  : Successfully linted   : '%s'" % script.resource_path)
 
 
 func _reload_script(text_edit: TextEdit, source_code: String) -> void:
@@ -159,6 +159,7 @@ func _reload_script(text_edit: TextEdit, source_code: String) -> void:
 	text_edit.text = source_code
 
 	# Restore cursor and scroll position
+
 	text_edit.set_caret_column(column)
 	text_edit.set_caret_line(row)
 	text_edit.scroll_horizontal = scroll_position_h
@@ -171,6 +172,7 @@ func _reload_script(text_edit: TextEdit, source_code: String) -> void:
 func _show_lint_errors(output: String, path: String) -> void:
 	print("\n⚠ GDLint found the following issues:")
 	print("File: %s" % _get_res_path(path))
+	push_error("❌ GDLint Error: Please see output with more information.")
 	var lines = output.split("\n")
 	var error_count := 0
 
