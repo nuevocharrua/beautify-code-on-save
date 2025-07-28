@@ -188,10 +188,8 @@ func _show_lint_errors(output: String, path: String) -> void:
 			var error_msg = error_parts[1]
 
 			print("%d) Line %s: %s" % [error_count, line_number, error_msg])
-			push_error("%d) Line %s: %s" % [error_count, line_number, error_msg])
 
 	print("\nTotal: %d issues found" % error_count)
-	push_error("\nTotal: %d issues found" % error_count)
 
 
 func _get_res_path(absolute_path: String) -> String:
