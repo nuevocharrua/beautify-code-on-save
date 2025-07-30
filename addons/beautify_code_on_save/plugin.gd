@@ -188,7 +188,7 @@ func _show_lint_errors(output: String, path: String) -> void:
 		if error_parts.size() >= 2:
 			error_count += 1
 			var location = error_parts[0].get_file()
-			var line_number = error_parts[0].split(":")[1]
+			var line_number = error_parts[0].split(":")[2] if OS.get_name() == "Windows" else error_parts[0].split(":")[1]
 			var error_msg = error_parts[1]
 
 			print("%d) Line %s: %s" % [error_count, line_number, error_msg])
